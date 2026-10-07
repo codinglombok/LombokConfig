@@ -1,0 +1,22 @@
+[package]
+name = "lombokconfig"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Typed configuration core: dotenv parsing, schema-driven resolution with strict casts, deep merge and dotted-path lookup. Part of the Lombok Ecosystem."
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/codinglombok/LombokConfig"
+homepage = "https://github.com/codinglombok/LombokConfig"
+readme = "../README.md"
+keywords = ["config", "configuration", "dotenv", "env", "schema"]
+exclude = ["tests/*", ".gitignore"]
+categories = ["config", "no-std", "parser-implementations"]
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+
+[lib]
+path = "src/lib.rs"

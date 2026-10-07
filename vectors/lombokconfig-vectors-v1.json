@@ -1,0 +1,6167 @@
+{
+ "format": "lombokconfig-vectors-v1",
+ "specVersion": "0.1.0",
+ "note": "Normative cross-language vectors. Each case calls `fn` with `args`; `expect` is {result} or {error: code, path?, line?}.",
+ "groups": [
+  {
+   "name": "golden",
+   "cases": [
+    {
+     "name": "dotenv empty",
+     "fn": "parseDotenv",
+     "args": [
+      ""
+     ],
+     "expect": {
+      "result": {}
+     }
+    },
+    {
+     "name": "dotenv simple",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\nB=two"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "two"
+      }
+     }
+    },
+    {
+     "name": "dotenv CRLF",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\r\nB=2\r\n"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv CR only",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\rB=2"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv BOM stripped",
+     "fn": "parseDotenv",
+     "args": [
+      "\ufeffA=1"
+     ],
+     "expect": {
+      "result": {
+       "A": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv blank lines and comments",
+     "fn": "parseDotenv",
+     "args": [
+      "\n# comment\n  \nA=1 # trailing\n#B=2\n"
+     ],
+     "expect": {
+      "result": {
+       "A": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv spaces around equals",
+     "fn": "parseDotenv",
+     "args": [
+      "A = 1\nB\t=\t2"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv leading indentation",
+     "fn": "parseDotenv",
+     "args": [
+      "   A=1"
+     ],
+     "expect": {
+      "result": {
+       "A": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv export prefix",
+     "fn": "parseDotenv",
+     "args": [
+      "export A=1\nexport\tB=2"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv export as key",
+     "fn": "parseDotenv",
+     "args": [
+      "export=1"
+     ],
+     "expect": {
+      "result": {
+       "export": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv exported key name",
+     "fn": "parseDotenv",
+     "args": [
+      "exportA=1"
+     ],
+     "expect": {
+      "result": {
+       "exportA": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv empty value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\nB="
+     ],
+     "expect": {
+      "result": {
+       "A": "",
+       "B": ""
+      }
+     }
+    },
+    {
+     "name": "dotenv empty value with comment",
+     "fn": "parseDotenv",
+     "args": [
+      "A= # nothing"
+     ],
+     "expect": {
+      "result": {
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "dotenv hash without space is value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=a#b\nB=#x"
+     ],
+     "expect": {
+      "result": {
+       "A": "a#b",
+       "B": ""
+      }
+     }
+    },
+    {
+     "name": "dotenv hash at value start after equals",
+     "fn": "parseDotenv",
+     "args": [
+      "A=#x"
+     ],
+     "expect": {
+      "result": {
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "dotenv trailing spaces trimmed",
+     "fn": "parseDotenv",
+     "args": [
+      "A=a b  \t"
+     ],
+     "expect": {
+      "result": {
+       "A": "a b"
+      }
+     }
+    },
+    {
+     "name": "dotenv inner spaces kept",
+     "fn": "parseDotenv",
+     "args": [
+      "A=a   b"
+     ],
+     "expect": {
+      "result": {
+       "A": "a   b"
+      }
+     }
+    },
+    {
+     "name": "dotenv equals in value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=x=y=z"
+     ],
+     "expect": {
+      "result": {
+       "A": "x=y=z"
+      }
+     }
+    },
+    {
+     "name": "dotenv later duplicate wins",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\nB=2\nA=3"
+     ],
+     "expect": {
+      "result": {
+       "A": "3",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"hello world\""
+     ],
+     "expect": {
+      "result": {
+       "A": "hello world"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted escapes",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"l1\\nl2\\tt\\r\\\\\\\"q\\$\""
+     ],
+     "expect": {
+      "result": {
+       "A": "l1\nl2\tt\r\\\"q$"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted unknown escape kept",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"\\x\\a\""
+     ],
+     "expect": {
+      "result": {
+       "A": "\\x\\a"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted hash kept",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"a # b\" # c"
+     ],
+     "expect": {
+      "result": {
+       "A": "a # b"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted multiline",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"l1\nl2\"\nB=2"
+     ],
+     "expect": {
+      "result": {
+       "A": "l1\nl2",
+       "B": "2"
+      }
+     }
+    },
+    {
+     "name": "dotenv double quoted CRLF inside",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"l1\r\nl2\""
+     ],
+     "expect": {
+      "result": {
+       "A": "l1\r\nl2"
+      }
+     }
+    },
+    {
+     "name": "dotenv single quoted literal",
+     "fn": "parseDotenv",
+     "args": [
+      "A='a\\n ${B} \"x\"'"
+     ],
+     "expect": {
+      "result": {
+       "A": "a\\n ${B} \"x\""
+      }
+     }
+    },
+    {
+     "name": "dotenv single quoted multiline",
+     "fn": "parseDotenv",
+     "args": [
+      "A='l1\nl2'"
+     ],
+     "expect": {
+      "result": {
+       "A": "l1\nl2"
+      }
+     }
+    },
+    {
+     "name": "dotenv quote inside unquoted kept",
+     "fn": "parseDotenv",
+     "args": [
+      "A=it's \"ok\""
+     ],
+     "expect": {
+      "result": {
+       "A": "it's \"ok\""
+      }
+     }
+    },
+    {
+     "name": "dotenv empty quotes",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"\"\nB=''"
+     ],
+     "expect": {
+      "result": {
+       "A": "",
+       "B": ""
+      }
+     }
+    },
+    {
+     "name": "dotenv expand earlier key",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\nB=${A}2"
+     ],
+     "expect": {
+      "result": {
+       "A": "1",
+       "B": "12"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand in double quotes",
+     "fn": "parseDotenv",
+     "args": [
+      "A=x\nB=\"<${A}>\""
+     ],
+     "expect": {
+      "result": {
+       "A": "x",
+       "B": "<x>"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand escaped dollar",
+     "fn": "parseDotenv",
+     "args": [
+      "A=x\nB=\"\\${A}\""
+     ],
+     "expect": {
+      "result": {
+       "A": "x",
+       "B": "${A}"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand unknown is empty",
+     "fn": "parseDotenv",
+     "args": [
+      "B=[${NOPE}]"
+     ],
+     "expect": {
+      "result": {
+       "B": "[]"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand default when unset",
+     "fn": "parseDotenv",
+     "args": [
+      "B=${NOPE:-dflt}"
+     ],
+     "expect": {
+      "result": {
+       "B": "dflt"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand default when empty",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\nB=${A:-dflt}"
+     ],
+     "expect": {
+      "result": {
+       "A": "",
+       "B": "dflt"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand default not used when set",
+     "fn": "parseDotenv",
+     "args": [
+      "A=v\nB=${A:-dflt}"
+     ],
+     "expect": {
+      "result": {
+       "A": "v",
+       "B": "v"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand default literal",
+     "fn": "parseDotenv",
+     "args": [
+      "B=${N:-a:-b ${x}"
+     ],
+     "expect": {
+      "result": {
+       "B": "a:-b ${x"
+      }
+     }
+    },
+    {
+     "name": "dotenv expand from env",
+     "fn": "parseDotenv",
+     "args": [
+      "B=${HOME}/x",
+      {
+       "HOME": "/home/u"
+      }
+     ],
+     "expect": {
+      "result": {
+       "B": "/home/u/x"
+      }
+     }
+    },
+    {
+     "name": "dotenv file wins over env",
+     "fn": "parseDotenv",
+     "args": [
+      "HOME=/f\nB=${HOME}",
+      {
+       "HOME": "/e"
+      }
+     ],
+     "expect": {
+      "result": {
+       "HOME": "/f",
+       "B": "/f"
+      }
+     }
+    },
+    {
+     "name": "dotenv later key not visible earlier",
+     "fn": "parseDotenv",
+     "args": [
+      "B=${A}\nA=1"
+     ],
+     "expect": {
+      "result": {
+       "B": "",
+       "A": "1"
+      }
+     }
+    },
+    {
+     "name": "dotenv self reference uses previous",
+     "fn": "parseDotenv",
+     "args": [
+      "P=a\nP=${P}:b"
+     ],
+     "expect": {
+      "result": {
+       "P": "a:b"
+      }
+     }
+    },
+    {
+     "name": "dotenv dollar alone kept",
+     "fn": "parseDotenv",
+     "args": [
+      "A=$5 and $ and $A"
+     ],
+     "expect": {
+      "result": {
+       "A": "$5 and $ and $A"
+      }
+     }
+    },
+    {
+     "name": "dotenv expanded value not re-expanded",
+     "fn": "parseDotenv",
+     "args": [
+      "A='${B}'\nB=x\nC=${A}"
+     ],
+     "expect": {
+      "result": {
+       "A": "${B}",
+       "B": "x",
+       "C": "${B}"
+      }
+     }
+    },
+    {
+     "name": "dotenv unicode value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=caf\u00e9 \ud83d\ude00"
+     ],
+     "expect": {
+      "result": {
+       "A": "caf\u00e9 \ud83d\ude00"
+      }
+     }
+    },
+    {
+     "name": "dotenv underscore key",
+     "fn": "parseDotenv",
+     "args": [
+      "_A_1=x"
+     ],
+     "expect": {
+      "result": {
+       "_A_1": "x"
+      }
+     }
+    },
+    {
+     "name": "dotenv proto key is data",
+     "fn": "parseDotenv",
+     "args": [
+      "__proto__=x"
+     ],
+     "expect": {
+      "result": {
+       "__proto__": "x"
+      }
+     }
+    },
+    {
+     "name": "dotenv missing equals",
+     "fn": "parseDotenv",
+     "args": [
+      "A 1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv missing equals on line 3",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\n\nB"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "dotenv key starts with digit",
+     "fn": "parseDotenv",
+     "args": [
+      "1A=x"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv key with dash",
+     "fn": "parseDotenv",
+     "args": [
+      "A-B=1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv key with dot",
+     "fn": "parseDotenv",
+     "args": [
+      "a.b=1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv only equals",
+     "fn": "parseDotenv",
+     "args": [
+      "=1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv unterminated double quote",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1\nB=\"abc"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "dotenv unterminated single quote",
+     "fn": "parseDotenv",
+     "args": [
+      "A='abc\nB=1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv text after quote",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"x\" y"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv unterminated expansion",
+     "fn": "parseDotenv",
+     "args": [
+      "A=${B"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv unterminated expansion in quotes",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"${B\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv invalid expansion name",
+     "fn": "parseDotenv",
+     "args": [
+      "A=${B-C}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv empty expansion name",
+     "fn": "parseDotenv",
+     "args": [
+      "A=${}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "dotenv line counted through multiline value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"1\n2\n3\"\nB"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "dotenv non-string text",
+     "fn": "parseDotenv",
+     "args": [
+      1
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "dotenv env not object",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1",
+      []
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "dotenv env non-string value",
+     "fn": "parseDotenv",
+     "args": [
+      "A=1",
+      {
+       "X": 1
+      }
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "resolve defaults and env",
+     "fn": "resolve",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      },
+      {
+       "DB_HOST": "db.example.com"
+      }
+     ],
+     "expect": {
+      "result": {
+       "app": {
+        "name": "demo",
+        "debug": false
+       },
+       "db": {
+        "host": "db.example.com",
+        "port": 5432
+       }
+      }
+     }
+    },
+    {
+     "name": "resolve env overrides default",
+     "fn": "resolve",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      },
+      {
+       "DB_HOST": "h",
+       "DB_PORT": "6543",
+       "APP_DEBUG": "yes",
+       "APP_NAME": "x"
+      }
+     ],
+     "expect": {
+      "result": {
+       "app": {
+        "name": "x",
+        "debug": true
+       },
+       "db": {
+        "host": "h",
+        "port": 6543
+       }
+      }
+     }
+    },
+    {
+     "name": "resolve missing required",
+     "fn": "resolve",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "db.host"
+     }
+    },
+    {
+     "name": "resolve empty schema",
+     "fn": "resolve",
+     "args": [
+      {},
+      {}
+     ],
+     "expect": {
+      "result": {}
+     }
+    },
+    {
+     "name": "resolve empty group",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {}
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "a": {}
+      }
+     }
+    },
+    {
+     "name": "resolve env absent arg",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "default": "x"
+       }
+      },
+      null
+     ],
+     "expect": {
+      "result": {
+       "a": "x"
+      }
+     }
+    },
+    {
+     "name": "resolve leaf without env uses default",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "default": 3
+       }
+      },
+      {
+       "a": "9"
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": 3
+      }
+     }
+    },
+    {
+     "name": "resolve optional without default is null",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": "A",
+        "required": false
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "a": null
+      }
+     }
+    },
+    {
+     "name": "resolve required false still uses env",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": "A",
+        "required": false
+       }
+      },
+      {
+       "A": "v"
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": "v"
+      }
+     }
+    },
+    {
+     "name": "resolve empty string is a value",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": "A",
+        "default": "d"
+       }
+      },
+      {
+       "A": ""
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": ""
+      }
+     }
+    },
+    {
+     "name": "resolve int \"0\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "0"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 0
+      }
+     }
+    },
+    {
+     "name": "resolve int \"42\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "42"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 42
+      }
+     }
+    },
+    {
+     "name": "resolve int \"-7\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "-7"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": -7
+      }
+     }
+    },
+    {
+     "name": "resolve int \"+5\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "+5"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 5
+      }
+     }
+    },
+    {
+     "name": "resolve int \"007\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "007"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 7
+      }
+     }
+    },
+    {
+     "name": "resolve int \"-0\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "-0"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 0
+      }
+     }
+    },
+    {
+     "name": "resolve int \"9007199254740991\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "9007199254740991"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": 9007199254740991
+      }
+     }
+    },
+    {
+     "name": "resolve int \"-9007199254740991\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "-9007199254740991"
+      }
+     ],
+     "expect": {
+      "result": {
+       "n": -9007199254740991
+      }
+     }
+    },
+    {
+     "name": "resolve int rejects \"\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": ""
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \" 1\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": " 1"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"1 \"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "1 "
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"1.0\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "1.0"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"1e3\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "1e3"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"0x10\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "0x10"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"abc\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "abc"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"9007199254740992\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "9007199254740992"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"--1\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "--1"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve int rejects \"+\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "n": {
+        "type": "int",
+        "env": "N"
+       }
+      },
+      {
+       "N": "+"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "n"
+     }
+    },
+    {
+     "name": "resolve float \"1.5\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1.5"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 1.5
+      }
+     }
+    },
+    {
+     "name": "resolve float \"-0.25\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "-0.25"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": -0.25
+      }
+     }
+    },
+    {
+     "name": "resolve float \"3\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "3"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 3
+      }
+     }
+    },
+    {
+     "name": "resolve float \".5\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": ".5"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 0.5
+      }
+     }
+    },
+    {
+     "name": "resolve float \"5.\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "5."
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 5
+      }
+     }
+    },
+    {
+     "name": "resolve float \"1e3\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1e3"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 1000
+      }
+     }
+    },
+    {
+     "name": "resolve float \"2.5E-3\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "2.5E-3"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 0.0025
+      }
+     }
+    },
+    {
+     "name": "resolve float \"+1.25\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "+1.25"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 1.25
+      }
+     }
+    },
+    {
+     "name": "resolve float \"-0.0\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "-0.0"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 0
+      }
+     }
+    },
+    {
+     "name": "resolve float \"1e21\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1e21"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 1e+21
+      }
+     }
+    },
+    {
+     "name": "resolve float rejects \"\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": ""
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"1,5\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1,5"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"NaN\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "NaN"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"Infinity\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "Infinity"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"inf\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "inf"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"1e400\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1e400"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"0x1\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "0x1"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \".\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "."
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \"1e\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": "1e"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve float rejects \" 2\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F"
+       }
+      },
+      {
+       "F": " 2"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve bool \"true\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "true"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": true
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"TRUE\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "TRUE"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": true
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"1\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "1"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": true
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"yes\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "yes"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": true
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"On\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "On"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": true
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"false\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "false"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": false
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"0\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "0"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": false
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"no\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "no"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": false
+      }
+     }
+    },
+    {
+     "name": "resolve bool \"OFF\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "OFF"
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": false
+      }
+     }
+    },
+    {
+     "name": "resolve bool rejects \"\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": ""
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve bool rejects \"y\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "y"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve bool rejects \"n\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "n"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve bool rejects \"2\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "2"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve bool rejects \"enabled\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": "enabled"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve bool rejects \" true\"",
+     "fn": "resolve",
+     "args": [
+      {
+       "b": {
+        "type": "bool",
+        "env": "B"
+       }
+      },
+      {
+       "B": " true"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "b"
+     }
+    },
+    {
+     "name": "resolve list split and trim",
+     "fn": "resolve",
+     "args": [
+      {
+       "l": {
+        "type": "list",
+        "env": "L"
+       }
+      },
+      {
+       "L": " a, b ,c\t"
+      }
+     ],
+     "expect": {
+      "result": {
+       "l": [
+        "a",
+        "b",
+        "c"
+       ]
+      }
+     }
+    },
+    {
+     "name": "resolve list drops empty items",
+     "fn": "resolve",
+     "args": [
+      {
+       "l": {
+        "type": "list",
+        "env": "L"
+       }
+      },
+      {
+       "L": "a,,b,"
+      }
+     ],
+     "expect": {
+      "result": {
+       "l": [
+        "a",
+        "b"
+       ]
+      }
+     }
+    },
+    {
+     "name": "resolve list empty string",
+     "fn": "resolve",
+     "args": [
+      {
+       "l": {
+        "type": "list",
+        "env": "L"
+       }
+      },
+      {
+       "L": ""
+      }
+     ],
+     "expect": {
+      "result": {
+       "l": []
+      }
+     }
+    },
+    {
+     "name": "resolve list default",
+     "fn": "resolve",
+     "args": [
+      {
+       "l": {
+        "type": "list",
+        "env": "L",
+        "default": [
+         "x"
+        ]
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "l": [
+        "x"
+       ]
+      }
+     }
+    },
+    {
+     "name": "resolve json object",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": "{\"a\":[1,true,null]}"
+      }
+     ],
+     "expect": {
+      "result": {
+       "j": {
+        "a": [
+         1,
+         true,
+         null
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "resolve json scalar",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": " \"s\" "
+      }
+     ],
+     "expect": {
+      "result": {
+       "j": "s"
+      }
+     }
+    },
+    {
+     "name": "resolve json default any",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "default": {
+         "k": [
+          1
+         ]
+        }
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "j": {
+        "k": [
+         1
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "resolve json invalid",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": "{a:1}"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "j"
+     }
+    },
+    {
+     "name": "resolve json trailing",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": "[1] x"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "j"
+     }
+    },
+    {
+     "name": "resolve json non-finite",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": "[1e400]"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "j"
+     }
+    },
+    {
+     "name": "resolve json lone surrogate",
+     "fn": "resolve",
+     "args": [
+      {
+       "j": {
+        "type": "json",
+        "env": "J"
+       }
+      },
+      {
+       "J": "\"\\ud800\""
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "j"
+     }
+    },
+    {
+     "name": "resolve enum ok",
+     "fn": "resolve",
+     "args": [
+      {
+       "e": {
+        "type": "enum",
+        "env": "E",
+        "values": [
+         "dev",
+         "prod"
+        ]
+       }
+      },
+      {
+       "E": "prod"
+      }
+     ],
+     "expect": {
+      "result": {
+       "e": "prod"
+      }
+     }
+    },
+    {
+     "name": "resolve enum case-sensitive",
+     "fn": "resolve",
+     "args": [
+      {
+       "e": {
+        "type": "enum",
+        "env": "E",
+        "values": [
+         "dev",
+         "prod"
+        ]
+       }
+      },
+      {
+       "E": "PROD"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "e"
+     }
+    },
+    {
+     "name": "resolve enum default",
+     "fn": "resolve",
+     "args": [
+      {
+       "e": {
+        "type": "enum",
+        "values": [
+         "a"
+        ],
+        "default": "a"
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "e": "a"
+      }
+     }
+    },
+    {
+     "name": "resolve min violated by env",
+     "fn": "resolve",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      },
+      {
+       "DB_HOST": "h",
+       "DB_PORT": "0"
+      }
+     ],
+     "expect": {
+      "error": "out_of_range",
+      "path": "db.port"
+     }
+    },
+    {
+     "name": "resolve max violated by env",
+     "fn": "resolve",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      },
+      {
+       "DB_HOST": "h",
+       "DB_PORT": "65536"
+      }
+     ],
+     "expect": {
+      "error": "out_of_range",
+      "path": "db.port"
+     }
+    },
+    {
+     "name": "resolve min and max inclusive",
+     "fn": "resolve",
+     "args": [
+      {
+       "p": {
+        "type": "int",
+        "env": "P",
+        "min": 1,
+        "max": 2
+       }
+      },
+      {
+       "P": "2"
+      }
+     ],
+     "expect": {
+      "result": {
+       "p": 2
+      }
+     }
+    },
+    {
+     "name": "resolve min inclusive",
+     "fn": "resolve",
+     "args": [
+      {
+       "p": {
+        "type": "int",
+        "env": "P",
+        "min": 1,
+        "max": 2
+       }
+      },
+      {
+       "P": "1"
+      }
+     ],
+     "expect": {
+      "result": {
+       "p": 1
+      }
+     }
+    },
+    {
+     "name": "resolve float min inclusive",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F",
+        "min": 0.5
+       }
+      },
+      {
+       "F": "0.5"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 0.5
+      }
+     }
+    },
+    {
+     "name": "resolve min violated by default",
+     "fn": "resolve",
+     "args": [
+      {
+       "p": {
+        "type": "int",
+        "default": 0,
+        "min": 1
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "error": "out_of_range",
+      "path": "p"
+     }
+    },
+    {
+     "name": "resolve float bounds",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F",
+        "min": 0,
+        "max": 1
+       }
+      },
+      {
+       "F": "0.75"
+      }
+     ],
+     "expect": {
+      "result": {
+       "f": 0.75
+      }
+     }
+    },
+    {
+     "name": "resolve float bounds violated",
+     "fn": "resolve",
+     "args": [
+      {
+       "f": {
+        "type": "float",
+        "env": "F",
+        "min": 0,
+        "max": 1
+       }
+      },
+      {
+       "F": "1.5"
+      }
+     ],
+     "expect": {
+      "error": "out_of_range",
+      "path": "f"
+     }
+    },
+    {
+     "name": "resolve first error in schema order",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "env": "A"
+       },
+       "b": {
+        "type": "int",
+        "env": "B"
+       }
+      },
+      {
+       "A": "x"
+      }
+     ],
+     "expect": {
+      "error": "invalid_value",
+      "path": "a"
+     }
+    },
+    {
+     "name": "resolve first error nested order",
+     "fn": "resolve",
+     "args": [
+      {
+       "z": {
+        "y": {
+         "type": "string",
+         "env": "Y"
+        }
+       },
+       "a": {
+        "type": "string",
+        "env": "A"
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "z.y"
+     }
+    },
+    {
+     "name": "resolve alphanumeric key",
+     "fn": "resolve",
+     "args": [
+      {
+       "a1": {
+        "type": "string",
+        "default": "x"
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "a1": "x"
+      }
+     }
+    },
+    {
+     "name": "resolve secret does not change resolve",
+     "fn": "resolve",
+     "args": [
+      {
+       "k": {
+        "type": "string",
+        "env": "K",
+        "secret": true
+       }
+      },
+      {
+       "K": "s3"
+      }
+     ],
+     "expect": {
+      "result": {
+       "k": "s3"
+      }
+     }
+    },
+    {
+     "name": "resolve description allowed",
+     "fn": "resolve",
+     "args": [
+      {
+       "k": {
+        "type": "string",
+        "default": "x",
+        "description": "doc"
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "k": "x"
+      }
+     }
+    },
+    {
+     "name": "resolve group may contain key named type",
+     "fn": "resolve",
+     "args": [
+      {
+       "type": {
+        "kind": {
+         "type": "string",
+         "default": "x"
+        }
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "type": {
+        "kind": "x"
+       }
+      }
+     }
+    },
+    {
+     "name": "resolve schema checked before env",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "nope"
+       }
+      },
+      []
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "resolve env must be object",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "default": "x"
+       }
+      },
+      []
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "resolve env values strings",
+     "fn": "resolve",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "default": "x"
+       }
+      },
+      {
+       "A": 1
+      }
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "schema valid",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "app": {
+        "name": {
+         "type": "string",
+         "env": "APP_NAME",
+         "default": "demo"
+        },
+        "debug": {
+         "type": "bool",
+         "env": "APP_DEBUG",
+         "default": false
+        }
+       },
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432,
+         "min": 1,
+         "max": 65535
+        }
+       }
+      }
+     ],
+     "expect": {
+      "result": true
+     }
+    },
+    {
+     "name": "schema not object",
+     "fn": "validateSchema",
+     "args": [
+      []
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": ""
+     }
+    },
+    {
+     "name": "schema node not object",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": 1
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema node array",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": []
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema invalid key",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a-b": {
+        "type": "string"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a-b"
+     }
+    },
+    {
+     "name": "schema key with dot",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a.b": {
+        "type": "string"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a.b"
+     }
+    },
+    {
+     "name": "schema unknown type",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "integer"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema unknown leaf key",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "defualt": "x"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema env not name",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": "A-B"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema env not string",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema required not bool",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "required": "no"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema secret not bool",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "secret": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema description not string",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "description": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema enum without values",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "enum"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema enum empty values",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "enum",
+        "values": []
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema enum non-string values",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "enum",
+        "values": [
+         1
+        ]
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema values on non-enum",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "values": [
+         "x"
+        ]
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema min on string",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "min": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema min not number",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "min": "1"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema min greater than max",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "min": 2,
+        "max": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type string",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "default": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type int fraction",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "default": 1.5
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type int unsafe",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "int",
+        "default": 9007199254740992
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type float",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "float",
+        "default": "1"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type bool",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "bool",
+        "default": "true"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default wrong type list",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "list",
+        "default": [
+         1
+        ]
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema default not in enum",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "enum",
+        "values": [
+         "x"
+        ],
+        "default": "y"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "schema nested error path",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "b": {
+         "c": {
+          "type": "x"
+         }
+        }
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a.b.c"
+     }
+    },
+    {
+     "name": "schema schema error found even after valid fields",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "env": "A"
+       },
+       "b": {
+        "type": "bad"
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "b"
+     }
+    },
+    {
+     "name": "schema type not string makes a group",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "a": {
+        "type": 1
+       }
+      }
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a.type"
+     }
+    },
+    {
+     "name": "schema too deep",
+     "fn": "validateSchema",
+     "args": [
+      {
+       "n": {
+        "n": {
+         "n": {
+          "n": {
+           "n": {
+            "n": {
+             "n": {
+              "n": {
+               "n": {
+                "n": {
+                 "n": {
+                  "n": {
+                   "n": {
+                    "n": {
+                     "n": {
+                      "n": {
+                       "n": {
+                        "n": {
+                         "n": {
+                          "n": {
+                           "n": {
+                            "n": {
+                             "n": {
+                              "n": {
+                               "n": {
+                                "n": {
+                                 "n": {
+                                  "n": {
+                                   "n": {
+                                    "n": {
+                                     "n": {
+                                      "n": {
+                                       "n": {
+                                        "n": {
+                                         "n": {
+                                          "n": {
+                                           "n": {
+                                            "n": {
+                                             "n": {
+                                              "n": {
+                                               "n": {
+                                                "n": {
+                                                 "n": {
+                                                  "n": {
+                                                   "n": {
+                                                    "n": {
+                                                     "n": {
+                                                      "n": {
+                                                       "n": {
+                                                        "n": {
+                                                         "n": {
+                                                          "n": {
+                                                           "n": {
+                                                            "n": {
+                                                             "n": {
+                                                              "n": {
+                                                               "n": {
+                                                                "n": {
+                                                                 "n": {
+                                                                  "n": {
+                                                                   "n": {
+                                                                    "n": {
+                                                                     "n": {
+                                                                      "n": {
+                                                                       "n": {
+                                                                        "n": {
+                                                                         "n": {
+                                                                          "n": {
+                                                                           "n": {
+                                                                            "n": {
+                                                                             "type": "string",
+                                                                             "default": "x"
+                                                                            }
+                                                                           }
+                                                                          }
+                                                                         }
+                                                                        }
+                                                                       }
+                                                                      }
+                                                                     }
+                                                                    }
+                                                                   }
+                                                                  }
+                                                                 }
+                                                                }
+                                                               }
+                                                              }
+                                                             }
+                                                            }
+                                                           }
+                                                          }
+                                                         }
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             }
+                                            }
+                                           }
+                                          }
+                                         }
+                                        }
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ],
+     "expect": {
+      "error": "too_deep",
+      "path": "n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n"
+     }
+    },
+    {
+     "name": "explain mixed",
+     "fn": "explain",
+     "args": [
+      {
+       "db": {
+        "host": {
+         "type": "string",
+         "env": "DB_HOST"
+        },
+        "port": {
+         "type": "int",
+         "env": "DB_PORT",
+         "default": 5432
+        },
+        "pass": {
+         "type": "string",
+         "env": "DB_PASS",
+         "secret": true
+        },
+        "opt": {
+         "type": "string",
+         "required": false
+        }
+       }
+      },
+      {
+       "DB_PORT": "x",
+       "DB_PASS": "hunter2"
+      }
+     ],
+     "expect": {
+      "result": [
+       {
+        "path": "db.host",
+        "type": "string",
+        "env": "DB_HOST",
+        "source": "none",
+        "value": null,
+        "error": "missing_value"
+       },
+       {
+        "path": "db.port",
+        "type": "int",
+        "env": "DB_PORT",
+        "source": "env",
+        "value": null,
+        "error": "invalid_value"
+       },
+       {
+        "path": "db.pass",
+        "type": "string",
+        "env": "DB_PASS",
+        "source": "env",
+        "value": "[secret]",
+        "error": null
+       },
+       {
+        "path": "db.opt",
+        "type": "string",
+        "env": null,
+        "source": "none",
+        "value": null,
+        "error": null
+       }
+      ]
+     }
+    },
+    {
+     "name": "explain default source",
+     "fn": "explain",
+     "args": [
+      {
+       "a": {
+        "type": "bool",
+        "env": "A",
+        "default": true
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "result": [
+       {
+        "path": "a",
+        "type": "bool",
+        "env": "A",
+        "source": "default",
+        "value": true,
+        "error": null
+       }
+      ]
+     }
+    },
+    {
+     "name": "explain secret default masked",
+     "fn": "explain",
+     "args": [
+      {
+       "a": {
+        "type": "string",
+        "default": "d",
+        "secret": true
+       }
+      }
+     ],
+     "expect": {
+      "result": [
+       {
+        "path": "a",
+        "type": "string",
+        "env": null,
+        "source": "default",
+        "value": "[secret]",
+        "error": null
+       }
+      ]
+     }
+    },
+    {
+     "name": "explain schema error throws",
+     "fn": "explain",
+     "args": [
+      {
+       "a": {
+        "type": "x"
+       }
+      },
+      {}
+     ],
+     "expect": {
+      "error": "invalid_schema",
+      "path": "a"
+     }
+    },
+    {
+     "name": "explain empty",
+     "fn": "explain",
+     "args": [
+      {},
+      {}
+     ],
+     "expect": {
+      "result": []
+     }
+    },
+    {
+     "name": "merge disjoint",
+     "fn": "merge",
+     "args": [
+      {
+       "a": 1
+      },
+      {
+       "b": 2
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": 1,
+       "b": 2
+      }
+     }
+    },
+    {
+     "name": "merge override scalar",
+     "fn": "merge",
+     "args": [
+      {
+       "a": 1
+      },
+      {
+       "a": 2
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": 2
+      }
+     }
+    },
+    {
+     "name": "merge deep",
+     "fn": "merge",
+     "args": [
+      {
+       "db": {
+        "host": "a",
+        "port": 1
+       }
+      },
+      {
+       "db": {
+        "port": 2
+       }
+      }
+     ],
+     "expect": {
+      "result": {
+       "db": {
+        "host": "a",
+        "port": 2
+       }
+      }
+     }
+    },
+    {
+     "name": "merge arrays replace",
+     "fn": "merge",
+     "args": [
+      {
+       "l": [
+        1,
+        2
+       ]
+      },
+      {
+       "l": [
+        3
+       ]
+      }
+     ],
+     "expect": {
+      "result": {
+       "l": [
+        3
+       ]
+      }
+     }
+    },
+    {
+     "name": "merge null replaces",
+     "fn": "merge",
+     "args": [
+      {
+       "a": {
+        "b": 1
+       }
+      },
+      {
+       "a": null
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": null
+      }
+     }
+    },
+    {
+     "name": "merge object replaces scalar",
+     "fn": "merge",
+     "args": [
+      {
+       "a": 1
+      },
+      {
+       "a": {
+        "b": 1
+       }
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": {
+        "b": 1
+       }
+      }
+     }
+    },
+    {
+     "name": "merge scalar replaces object",
+     "fn": "merge",
+     "args": [
+      {
+       "a": {
+        "b": 1
+       }
+      },
+      {
+       "a": "x"
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": "x"
+      }
+     }
+    },
+    {
+     "name": "merge key order base first",
+     "fn": "merge",
+     "args": [
+      {
+       "b": 1,
+       "a": 1
+      },
+      {
+       "c": 1,
+       "a": 2
+      }
+     ],
+     "expect": {
+      "result": {
+       "b": 1,
+       "a": 2,
+       "c": 1
+      }
+     }
+    },
+    {
+     "name": "merge empty override",
+     "fn": "merge",
+     "args": [
+      {
+       "a": 1
+      },
+      {}
+     ],
+     "expect": {
+      "result": {
+       "a": 1
+      }
+     }
+    },
+    {
+     "name": "merge empty base",
+     "fn": "merge",
+     "args": [
+      {},
+      {
+       "a": {
+        "b": 1
+       }
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": {
+        "b": 1
+       }
+      }
+     }
+    },
+    {
+     "name": "merge three levels",
+     "fn": "merge",
+     "args": [
+      {
+       "a": {
+        "b": {
+         "c": 1,
+         "d": 1
+        }
+       }
+      },
+      {
+       "a": {
+        "b": {
+         "d": 2
+        }
+       }
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": {
+        "b": {
+         "c": 1,
+         "d": 2
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "merge proto key is data",
+     "fn": "merge",
+     "args": [
+      {
+       "a": 1
+      },
+      {
+       "__proto__": {
+        "x": 1
+       }
+      }
+     ],
+     "expect": {
+      "result": {
+       "a": 1,
+       "__proto__": {
+        "x": 1
+       }
+      }
+     }
+    },
+    {
+     "name": "merge base not object",
+     "fn": "merge",
+     "args": [
+      [],
+      {}
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "merge override not object",
+     "fn": "merge",
+     "args": [
+      {},
+      null
+     ],
+     "expect": {
+      "error": "invalid_input"
+     }
+    },
+    {
+     "name": "merge too deep",
+     "fn": "merge",
+     "args": [
+      {
+       "n": {
+        "n": {
+         "n": {
+          "n": {
+           "n": {
+            "n": {
+             "n": {
+              "n": {
+               "n": {
+                "n": {
+                 "n": {
+                  "n": {
+                   "n": {
+                    "n": {
+                     "n": {
+                      "n": {
+                       "n": {
+                        "n": {
+                         "n": {
+                          "n": {
+                           "n": {
+                            "n": {
+                             "n": {
+                              "n": {
+                               "n": {
+                                "n": {
+                                 "n": {
+                                  "n": {
+                                   "n": {
+                                    "n": {
+                                     "n": {
+                                      "n": {
+                                       "n": {
+                                        "n": {
+                                         "n": {
+                                          "n": {
+                                           "n": {
+                                            "n": {
+                                             "n": {
+                                              "n": {
+                                               "n": {
+                                                "n": {
+                                                 "n": {
+                                                  "n": {
+                                                   "n": {
+                                                    "n": {
+                                                     "n": {
+                                                      "n": {
+                                                       "n": {
+                                                        "n": {
+                                                         "n": {
+                                                          "n": {
+                                                           "n": {
+                                                            "n": {
+                                                             "n": {
+                                                              "n": {
+                                                               "n": {
+                                                                "n": {
+                                                                 "n": {
+                                                                  "n": {
+                                                                   "n": {
+                                                                    "n": {
+                                                                     "n": {
+                                                                      "n": {
+                                                                       "n": {
+                                                                        "n": {
+                                                                         "n": {
+                                                                          "n": {
+                                                                           "n": {
+                                                                            "n": {}
+                                                                           }
+                                                                          }
+                                                                         }
+                                                                        }
+                                                                       }
+                                                                      }
+                                                                     }
+                                                                    }
+                                                                   }
+                                                                  }
+                                                                 }
+                                                                }
+                                                               }
+                                                              }
+                                                             }
+                                                            }
+                                                           }
+                                                          }
+                                                         }
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             }
+                                            }
+                                           }
+                                          }
+                                         }
+                                        }
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "n": {
+        "n": {
+         "n": {
+          "n": {
+           "n": {
+            "n": {
+             "n": {
+              "n": {
+               "n": {
+                "n": {
+                 "n": {
+                  "n": {
+                   "n": {
+                    "n": {
+                     "n": {
+                      "n": {
+                       "n": {
+                        "n": {
+                         "n": {
+                          "n": {
+                           "n": {
+                            "n": {
+                             "n": {
+                              "n": {
+                               "n": {
+                                "n": {
+                                 "n": {
+                                  "n": {
+                                   "n": {
+                                    "n": {
+                                     "n": {
+                                      "n": {
+                                       "n": {
+                                        "n": {
+                                         "n": {
+                                          "n": {
+                                           "n": {
+                                            "n": {
+                                             "n": {
+                                              "n": {
+                                               "n": {
+                                                "n": {
+                                                 "n": {
+                                                  "n": {
+                                                   "n": {
+                                                    "n": {
+                                                     "n": {
+                                                      "n": {
+                                                       "n": {
+                                                        "n": {
+                                                         "n": {
+                                                          "n": {
+                                                           "n": {
+                                                            "n": {
+                                                             "n": {
+                                                              "n": {
+                                                               "n": {
+                                                                "n": {
+                                                                 "n": {
+                                                                  "n": {
+                                                                   "n": {
+                                                                    "n": {
+                                                                     "n": {
+                                                                      "n": {
+                                                                       "n": {
+                                                                        "n": {
+                                                                         "n": {
+                                                                          "n": {
+                                                                           "n": {
+                                                                            "n": {}
+                                                                           }
+                                                                          }
+                                                                         }
+                                                                        }
+                                                                       }
+                                                                      }
+                                                                     }
+                                                                    }
+                                                                   }
+                                                                  }
+                                                                 }
+                                                                }
+                                                               }
+                                                              }
+                                                             }
+                                                            }
+                                                           }
+                                                          }
+                                                         }
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             }
+                                            }
+                                           }
+                                          }
+                                         }
+                                        }
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ],
+     "expect": {
+      "error": "too_deep"
+     }
+    },
+    {
+     "name": "get top",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db"
+     ],
+     "expect": {
+      "result": {
+       "host": "h",
+       "ports": [
+        10,
+        20
+       ],
+       "opts": {
+        "ssl": false,
+        "n": null
+       }
+      }
+     }
+    },
+    {
+     "name": "get nested",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.host"
+     ],
+     "expect": {
+      "result": "h"
+     }
+    },
+    {
+     "name": "get array index",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.ports.1"
+     ],
+     "expect": {
+      "result": 20
+     }
+    },
+    {
+     "name": "get false value",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.opts.ssl"
+     ],
+     "expect": {
+      "result": false
+     }
+    },
+    {
+     "name": "get null value",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.opts.n"
+     ],
+     "expect": {
+      "result": null
+     }
+    },
+    {
+     "name": "get fallback used",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.user",
+      "root"
+     ],
+     "expect": {
+      "result": "root"
+     }
+    },
+    {
+     "name": "get fallback null",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "x.y",
+      null
+     ],
+     "expect": {
+      "result": null
+     }
+    },
+    {
+     "name": "get fallback not used when present",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.host",
+      "z"
+     ],
+     "expect": {
+      "result": "h"
+     }
+    },
+    {
+     "name": "get missing",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.user"
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "db.user"
+     }
+    },
+    {
+     "name": "get index out of range",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.ports.2"
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "db.ports.2"
+     }
+    },
+    {
+     "name": "get non-canonical index",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.ports.01"
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "db.ports.01"
+     }
+    },
+    {
+     "name": "get through scalar",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db.host.x"
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "db.host.x"
+     }
+    },
+    {
+     "name": "get dotted key unreachable",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "a.b"
+     ],
+     "expect": {
+      "error": "missing_value",
+      "path": "a.b"
+     }
+    },
+    {
+     "name": "get empty path",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      ""
+     ],
+     "expect": {
+      "error": "invalid_path"
+     }
+    },
+    {
+     "name": "get empty segment",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db..host"
+     ],
+     "expect": {
+      "error": "invalid_path",
+      "path": "db..host"
+     }
+    },
+    {
+     "name": "get trailing dot",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      "db."
+     ],
+     "expect": {
+      "error": "invalid_path",
+      "path": "db."
+     }
+    },
+    {
+     "name": "get path not string",
+     "fn": "get",
+     "args": [
+      {
+       "db": {
+        "host": "h",
+        "ports": [
+         10,
+         20
+        ],
+        "opts": {
+         "ssl": false,
+         "n": null
+        }
+       },
+       "a.b": 1
+      },
+      1
+     ],
+     "expect": {
+      "error": "invalid_path"
+     }
+    },
+    {
+     "name": "get get on array root",
+     "fn": "get",
+     "args": [
+      [
+       {
+        "a": 1
+       }
+      ],
+      "0.a"
+     ],
+     "expect": {
+      "result": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "generated-regression",
+   "cases": [
+    {
+     "name": "generated 001 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=} \r\n\\\"${B_2:-d}\n${Z}\r\n E=${Z}{\\n\n\r\n E = "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 002 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=A\r\nC=1",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "B_2": "A",
+       "C": "1"
+      }
+     }
+    },
+    {
+     "name": "generated 003 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D = \r\nexport D = #\\n\r\nC=caf\u00e9\r\n E="
+     ],
+     "expect": {
+      "result": {
+       "D": "",
+       "C": "caf\u00e9",
+       "E": ""
+      }
+     }
+    },
+    {
+     "name": "generated 004 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\r\nC = \\\r\nC=\\"
+     ],
+     "expect": {
+      "result": {
+       "C": "\\"
+      }
+     }
+    },
+    {
+     "name": "generated 005 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\n\nB_2export A\r\n\nA=\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 006 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = #export #",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "generated 007 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=\nexport D=$export $export \nexport D=A"
+     ],
+     "expect": {
+      "result": {
+       "E": "",
+       "D": "A"
+      }
+     }
+    },
+    {
+     "name": "generated 008 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E = }##export \r\n\t\\n\r\n'{\r\n\t${B_2:-d}\r\nB_2= "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 009 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${B_2:-d}export {\r\n\\\r\nB_2=B_2 1'"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 010 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\r\nB_2=x\r\nC = \r\nC = "
+     ],
+     "expect": {
+      "result": {
+       "A": "",
+       "B_2": "x",
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 011 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C = \\"
+     ],
+     "expect": {
+      "result": {
+       "C": "\\"
+      }
+     }
+    },
+    {
+     "name": "generated 012 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${A}'11export \r\nB_2="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 013 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\\export caf\u00e9\r\nB_2=\\nB_2=",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 014 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "$\\\n\\n\\n#\nB_2 =  {\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 015 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export  ${Z}A\r\nC = \r\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 016 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=}\r\nC=${Z}\r\n#${A}\r\nexport D=\"'\r\nexport D='=${Z}\\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 017 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C = caf\u00e9\\}\nC=#\\n1}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 018 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\\\r\n1\r\n#AB_2x\\\r\nB_2=${Z}xx"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 019 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2 = \\n\t${",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 020 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "{caf\u00e9\n'\nx=\t\nA=\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 021 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\\\nB_2= \nB_2=${A}='x\n E="
+     ],
+     "expect": {
+      "result": {
+       "D": "\\",
+       "B_2": "='x",
+       "E": ""
+      }
+     }
+    },
+    {
+     "name": "generated 022 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2 = x 1 "
+     ],
+     "expect": {
+      "result": {
+       "B_2": "x 1"
+      }
+     }
+    },
+    {
+     "name": "generated 023 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 024 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=$\t\\caf\u00e9\r\nC=\r\nC = \t\r\nC = {\t}"
+     ],
+     "expect": {
+      "result": {
+       "D": "$\t\\caf\u00e9",
+       "C": "{\t}"
+      }
+     }
+    },
+    {
+     "name": "generated 025 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A='A\t1\r\nexport D=\nB_2\r\nA = \r\n E = A",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 026 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = \nC = 'export }export \nexport D=\\n\nxexport \nA = A#{",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 027 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "#\n E=\n$}\\n${B_2:-d}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 028 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\r\nA\\\n\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 029 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "caf\u00e9\r\ncaf\u00e9\r\n\t\\=\r\n\"x=\n${B_2:-d}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 030 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=${Z}'\r\nB_2 = caf\u00e9${B_2:-d}\r\n E = A#",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "D": "zz'",
+       "B_2": "caf\u00e9d",
+       "E": "A#"
+      }
+     }
+    },
+    {
+     "name": "generated 031 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = {",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "A": "{"
+      }
+     }
+    },
+    {
+     "name": "generated 032 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E = ${B_2:-d}\r\n E = \t\r\nexport D=caf\u00e9${Z}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "E": "",
+       "D": "caf\u00e9zz"
+      }
+     }
+    },
+    {
+     "name": "generated 033 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\t\\nexport $\nA=${Z}#",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "A": "zz#"
+      }
+     }
+    },
+    {
+     "name": "generated 034 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E = B_2"
+     ],
+     "expect": {
+      "result": {
+       "E": "B_2"
+      }
+     }
+    },
+    {
+     "name": "generated 035 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=B_2"
+     ],
+     "expect": {
+      "result": {
+       "B_2": "B_2"
+      }
+     }
+    },
+    {
+     "name": "generated 036 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\r\n E=1\"\r\ncaf\u00e9"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 037 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = \t"
+     ],
+     "expect": {
+      "result": {
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "generated 038 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "{B_2'\\\"\nA = 'caf\u00e9\nC=x\n E=xx"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 039 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\nB_2 = \\'\nA={\r\n${Z}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 040 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "{\\n'${A}{\nB_2=x\r\n${\n E=\\${Z}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 041 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\n${B_2:-d}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 042 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${Z}\r\nexport D='export "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 043 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\"\r\nx${Z}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 044 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\n\n\r\n''caf\u00e9\n caf\u00e9"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 045 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\nexport =\r\n\\n#x=\r\n\\B_2${B_2:-d}caf\u00e9"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 046 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E =  A1\n\nA=\nA = B_2${B_2:-d}\\\n\t{B_2}${B_2:-d}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 5
+     }
+    },
+    {
+     "name": "generated 047 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2={{B_2\r\n\r\n\r\nA = ",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "B_2": "{{B_2",
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "generated 048 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "#\n\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 049 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export \r\nB_2=\r\nA\r\nexport D = x${A}x",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 050 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\r\nC= export \r\nexport D=\r\n E={"
+     ],
+     "expect": {
+      "result": {
+       "C": "export",
+       "D": "",
+       "E": "{"
+      }
+     }
+    },
+    {
+     "name": "generated 051 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {}
+     }
+    },
+    {
+     "name": "generated 052 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=\ncaf\u00e9",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 053 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2'=caf\u00e9\r\n=\r\nexport D=$$B_2\r\n${B_2:-d}'1A"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 054 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\n E=\t\n=xx$\nC = export "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 055 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=A\nexport D=",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "A": "A",
+       "D": ""
+      }
+     }
+    },
+    {
+     "name": "generated 056 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=A\"B_2="
+     ],
+     "expect": {
+      "result": {
+       "D": "A\"B_2="
+      }
+     }
+    },
+    {
+     "name": "generated 057 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D =  \\n\n}\r\n #export \r\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 058 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E = B_2"
+     ],
+     "expect": {
+      "result": {
+       "E": "B_2"
+      }
+     }
+    },
+    {
+     "name": "generated 059 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${A}\r\n${Z} ${B_2:-d}\r\nA=\r\nAcaf\u00e9$"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 060 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=\tB_2\r\nexport D = }\r\n E="
+     ],
+     "expect": {
+      "result": {
+       "E": "",
+       "D": "}"
+      }
+     }
+    },
+    {
+     "name": "generated 061 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\r\n\texport "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 062 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=\n\t'",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 063 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D = '\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 064 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=$\nB_2==1\"$\nA=B_2}export A\nC=${Z}${Z} "
+     ],
+     "expect": {
+      "result": {
+       "B_2": "=1\"$",
+       "A": "B_2}export A",
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 065 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "1x\n\\n\nA = \"\n\"{\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 066 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=caf\u00e9\r\n\r\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "E": "caf\u00e9"
+      }
+     }
+    },
+    {
+     "name": "generated 067 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = '\\}x\n E = "
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 068 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=B_2}\r\n\n${A}\r\nC=\r\n\r\nexport B_2caf\u00e9x",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 069 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C = \\export \r\n \n${Z}\r\ncaf\u00e9\r\n\nC=\n\n${B_2:-d}",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 070 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "}$${B_2:-d}$\\n\nC="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 071 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=\nexport D=\tB_2\nB_2 = \\\nA${A} {",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 072 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=\t"
+     ],
+     "expect": {
+      "result": {
+       "B_2": ""
+      }
+     }
+    },
+    {
+     "name": "generated 073 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C = }caf\u00e9\r\nA = \\n\t${Z}"
+     ],
+     "expect": {
+      "result": {
+       "C": "}caf\u00e9",
+       "A": "\\n\t"
+      }
+     }
+    },
+    {
+     "name": "generated 074 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "}}\r\n\r\nexport D='\r\n E==export \\n${A}\r\nB_2=="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 075 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "{",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 076 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E='1'$",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 077 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\r\nxB_2$\r\n}A'\\n\\\r\n E = ${B_2:-d}'"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 078 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = caf\u00e91\r\nexport \r\nexport D="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 079 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2={A$\\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "B_2": "{A$\\n"
+      }
+     }
+    },
+    {
+     "name": "generated 080 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D="
+     ],
+     "expect": {
+      "result": {
+       "D": ""
+      }
+     }
+    },
+    {
+     "name": "generated 081 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = x$\r\nC=${Z}"
+     ],
+     "expect": {
+      "result": {
+       "A": "x$",
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 082 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " \n E = # B_2\"\n E=\n E=export caf\u00e9="
+     ],
+     "expect": {
+      "result": {
+       "E": "export caf\u00e9="
+      }
+     }
+    },
+    {
+     "name": "generated 083 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "x$x\r\nB_2 = \n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 084 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A =  \\ncaf\u00e9"
+     ],
+     "expect": {
+      "result": {
+       "A": "\\ncaf\u00e9"
+      }
+     }
+    },
+    {
+     "name": "generated 085 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=\t\"\r\n E=caf\u00e9A${B_2:-d}x\r\n E=\r\n E= caf\u00e9="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 086 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\nA=${B_2:-d}B_2"
+     ],
+     "expect": {
+      "result": {
+       "A": "dB_2"
+      }
+     }
+    },
+    {
+     "name": "generated 087 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\r\n\r\n\\n\t${A}1\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 088 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=\"xA\nA = $'${A}$\nexport D=$\tB_2 \n\n$1"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 089 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${A}1$export \r\n'$\r\n =\r\n\r\n$A",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 090 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=#=\r\n\r\nC== \r\n\r\nexport D="
+     ],
+     "expect": {
+      "result": {
+       "C": "=",
+       "D": ""
+      }
+     }
+    },
+    {
+     "name": "generated 091 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\"B_2$\n\r\n E=\t#'\r\nB_2 = \r\n\\n'caf\u00e9\r\nC==1\r\n="
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 092 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "{",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 093 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D= \n${Z}1#\n E=export \n E='\r\n}}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 094 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2 = \"\nB_2\n\nexport D=A#x#"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 095 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C='1\r\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 096 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=${B_2:-d}\\n\nC=",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "C": ""
+      }
+     }
+    },
+    {
+     "name": "generated 097 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C=\r\n E=${Z}{\r\n\r\nA=\"$${B_2:-d}\n"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 098 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\r\nB_2=\r\nC=export \\=\\\r\nA=",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "D": "",
+       "B_2": "",
+       "C": "export \\=\\",
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "generated 099 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\n${Z}${B_2:-d} ${B_2:-d}"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 100 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 101 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=caf\u00e9{\\\r\nB_2 = \r\n\r\nexport D=\""
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 102 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "C = '}\n\r\n'{\\n\nB_2=$\t"
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 103 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "  \r\nB_2 = ${B_2:-d}${B_2:-d}export x\r\n E = =$"
+     ],
+     "expect": {
+      "result": {
+       "B_2": "ddexport x",
+       "E": "=$"
+      }
+     }
+    },
+    {
+     "name": "generated 104 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=${A}B_2\\n'\r\n E=\\ '\\n\r\nC=x${A}#${A}\r\n\"",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 105 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\r\n\r\n E = \"\r\nC = caf\u00e9",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 3
+     }
+    },
+    {
+     "name": "generated 106 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2='B_2\r\nexport D=\n'\r\nB_2="
+     ],
+     "expect": {
+      "result": {
+       "B_2": ""
+      }
+     }
+    },
+    {
+     "name": "generated 107 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\\nB_2{ ",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 108 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2={${A}\r\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "B_2": "{env-a"
+      }
+     }
+    },
+    {
+     "name": "generated 109 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=\n$ \n\r\nB_2=\r\n{=",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 110 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "export D=\r\nC={B_2\r\n\r\ncaf\u00e9\\n\n${Z}${B_2:-d}\r\nB_2=\\\\nexport ",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 4
+     }
+    },
+    {
+     "name": "generated 111 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A=\nA = caf\u00e9\"A\r\n\nexport D=export $\r\n\r\n\n {1",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 7
+     }
+    },
+    {
+     "name": "generated 112 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=x1 "
+     ],
+     "expect": {
+      "result": {
+       "E": "x1"
+      }
+     }
+    },
+    {
+     "name": "generated 113 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\nexport D=\\n\\n",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {
+       "D": "\\n\\n"
+      }
+     }
+    },
+    {
+     "name": "generated 114 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "\t${A}'",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 115 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "result": {}
+     }
+    },
+    {
+     "name": "generated 116 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "B_2=\nexport D=1"
+     ],
+     "expect": {
+      "result": {
+       "B_2": "",
+       "D": "1"
+      }
+     }
+    },
+    {
+     "name": "generated 117 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "${A}\"\r\nC=caf\u00e91#'\r\n}\r\n E = \"",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 1
+     }
+    },
+    {
+     "name": "generated 118 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      "A = ${A}"
+     ],
+     "expect": {
+      "result": {
+       "A": ""
+      }
+     }
+    },
+    {
+     "name": "generated 119 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=\r\nA\\\r\nexport '${A}\r\nB_2 = ",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    },
+    {
+     "name": "generated 120 dotenv",
+     "fn": "parseDotenv",
+     "args": [
+      " E=caf\u00e9=1\r\n=caf\u00e9${Z}#${Z}\r\nA=\ncaf\u00e9",
+      {
+       "Z": "zz",
+       "A": "env-a"
+      }
+     ],
+     "expect": {
+      "error": "invalid_dotenv",
+      "line": 2
+     }
+    }
+   ]
+  }
+ ]
+}

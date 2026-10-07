@@ -1,0 +1,10 @@
+{
+  "lombokconfig.error.invalid_dotenv": "Teks dotenv tidak sah.",
+  "lombokconfig.error.invalid_schema": "Skema konfigurasi tidak sah.",
+  "lombokconfig.error.invalid_value": "Nilai konfigurasi tidak dapat diubah ke tipe yang dideklarasikan.",
+  "lombokconfig.error.missing_value": "Nilai konfigurasi wajib tidak ada.",
+  "lombokconfig.error.out_of_range": "Nilai konfigurasi di luar rentang yang diizinkan.",
+  "lombokconfig.error.invalid_input": "Bentuk argumen salah.",
+  "lombokconfig.error.invalid_path": "Jalur konfigurasi tidak sah.",
+  "lombokconfig.error.too_deep": "Konfigurasi bersarang terlalu dalam."
+}

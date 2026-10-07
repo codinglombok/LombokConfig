@@ -1,0 +1,10 @@
+{
+  "lombokconfig.error.invalid_dotenv": "The dotenv text is malformed.",
+  "lombokconfig.error.invalid_schema": "The configuration schema is invalid.",
+  "lombokconfig.error.invalid_value": "A configuration value cannot be converted to its declared type.",
+  "lombokconfig.error.missing_value": "A required configuration value is missing.",
+  "lombokconfig.error.out_of_range": "A configuration value is outside its allowed range.",
+  "lombokconfig.error.invalid_input": "An argument has the wrong shape.",
+  "lombokconfig.error.invalid_path": "The configuration path is invalid.",
+  "lombokconfig.error.too_deep": "The configuration is nested too deeply."
+}
