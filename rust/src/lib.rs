@@ -13,6 +13,7 @@ pub mod json;
 
 pub use json::{parse_json, Value};
 
+use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -111,7 +112,8 @@ struct Dotenv<'a> {
     c: Vec<char>,
     i: usize,
     line: u32,
-    out: Value,
+    out: Vec<(String, Value)>,
+    index: BTreeMap<String, usize>,
     env: &'a Value,
 }
 
@@ -131,8 +133,9 @@ impl Dotenv<'_> {
         }
     }
     fn lookup(&self, name: &str) -> Option<String> {
-        self.out
+        self.index
             .get(name)
+            .map(|&i| &self.out[i].1)
             .or_else(|| self.env.get(name))
             .and_then(|v| v.as_str())
             .map(|s| s.to_string())
@@ -313,7 +316,13 @@ impl Dotenv<'_> {
                     }
                 }
             }
-            self.out.set(&key, Value::Str(value));
+            match self.index.get(&key) {
+                Some(&i) => self.out[i].1 = Value::Str(value),
+                None => {
+                    self.index.insert(key.clone(), self.out.len());
+                    self.out.push((key, Value::Str(value)));
+                }
+            }
         }
         Ok(())
     }
@@ -328,11 +337,12 @@ pub fn parse_dotenv(text: &str, env: Option<&Value>) -> Result<Value> {
         c: body.chars().collect(),
         i: 0,
         line: 1,
-        out: obj(),
+        out: Vec::new(),
+        index: BTreeMap::new(),
         env: &env,
     };
     p.parse()?;
-    Ok(p.out)
+    Ok(Value::Obj(p.out))
 }
 
 // ---------------------------------------------------------------- schema resolution
@@ -642,7 +652,7 @@ fn walk(
             path,
         ));
     }
-    let mut out = obj();
+    let mut out: Vec<(String, Value)> = Vec::new();
     for (k, node) in schema.js_entries() {
         let p = if path.is_empty() {
             k.clone()
@@ -665,9 +675,10 @@ fn walk(
         } else {
             walk(node, &p, depth + 1, visit)?
         };
-        out.set(k, v);
+        // keys of a parsed object are unique, so a plain push keeps this linear
+        out.push((k.clone(), v));
     }
-    Ok(out)
+    Ok(Value::Obj(out))
 }
 
 /// Validate the whole schema without resolving any value.
@@ -737,15 +748,28 @@ fn merge_into(a: &Value, b: &Value, depth: usize) -> Result<Value> {
     if depth > MAX_DEPTH {
         return Err(Error::new("too_deep", "objects nested too deeply"));
     }
-    let mut out = a.clone();
+    let mut out: Vec<(String, Value)> = a.as_obj().cloned().unwrap_or_default();
+    let mut index: BTreeMap<String, usize> = out
+        .iter()
+        .enumerate()
+        .map(|(i, (k, _))| (k.clone(), i))
+        .collect();
     for (k, bv) in b.js_entries() {
-        let nv = match (out.get(k), bv) {
-            (Some(av @ Value::Obj(_)), Value::Obj(_)) => merge_into(av, bv, depth + 1)?,
-            _ => bv.clone(),
-        };
-        out.set(k, nv);
+        match index.get(k) {
+            Some(&i) => {
+                let nv = match (&out[i].1, bv) {
+                    (av @ Value::Obj(_), Value::Obj(_)) => merge_into(av, bv, depth + 1)?,
+                    _ => bv.clone(),
+                };
+                out[i].1 = nv;
+            }
+            None => {
+                index.insert(k.clone(), out.len());
+                out.push((k.clone(), bv.clone()));
+            }
+        }
     }
-    Ok(out)
+    Ok(Value::Obj(out))
 }
 
 /// Deep merge: objects merge key by key; arrays, scalars and `null` in `over` replace.

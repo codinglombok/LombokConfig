@@ -129,3 +129,24 @@ fn readme_rust_example() {
         r#"{"db":{"host":"db.example.com","port":6543}}"#
     );
 }
+
+#[test]
+fn large_inputs_stay_fast() {
+    let mut text = String::new();
+    for i in 0..100_000 {
+        text.push_str(&format!("K{}=${{K{}}}x\n", i, i / 2));
+    }
+    let t = std::time::Instant::now();
+    let env = lombokconfig::parse_dotenv(&text, None).unwrap();
+    assert_eq!(env.as_obj().unwrap().len(), 100_000);
+    let big = parse_json(&format!(
+        "{{{}}}",
+        (0..100_000)
+            .map(|i| format!("\"k{}\":{}", i, i))
+            .collect::<Vec<_>>()
+            .join(",")
+    ))
+    .unwrap();
+    lombokconfig::merge(&big, &big).unwrap();
+    assert!(t.elapsed().as_secs() < 30, "took {:?}", t.elapsed());
+}
